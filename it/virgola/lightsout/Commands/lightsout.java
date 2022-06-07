@@ -1,6 +1,7 @@
 package it.virgola.lightsout.Commands;
 
 import it.virgola.lightsout.*;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import sun.rmi.transport.proxy.CGIHandler;
 
 public class lightsout implements CommandExecutor
 {
@@ -93,18 +95,29 @@ public class lightsout implements CommandExecutor
             }
             else if(args[0].equalsIgnoreCase("stop"))
             {
-                if (sender instanceof Player)
-                {
-                    Player p = (Player) sender;
-                    Game game = GamesHandler.getPlayerGame(p.getUniqueId());
-
-                    if(game != null)
-                    {
-                        GamesHandler.stopGame(game);
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lPartita terminata con successo"));
+                if(args.length > 1) {
+                    if (sender instanceof Player) {
+                        Player p = Bukkit.getPlayerExact(args[1]);
+                        Game game = GamesHandler.getPlayerGame(p.getUniqueId());
+                        if (Bukkit.getPlayerExact(args[1]) != null) {
+                            if (game != null) {
+                                GamesHandler.stopGame(game);
+                            }
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lIl game di " + args[1] + " &a&lé stato stoppato"));
+                        }
                     }
-                    else {
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lNon puoi stoppare una partita che non esiste!"));
+                } else {
+                    if (sender instanceof Player) {
+                        Player p = (Player) sender;
+                        Game game = GamesHandler.getPlayerGame(p.getUniqueId());
+                        if (GamesHandler.getPlayerGame(p.getUniqueId()) != null) {
+                            if (game != null) {
+                                GamesHandler.stopGame(game);
+                            }
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lPartita terminata con successo"));
+                        } else {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lNon puoi stoppare una partita che non esiste!"));
+                        }
                     }
                 }
             }

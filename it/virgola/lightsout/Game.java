@@ -93,11 +93,9 @@ public class Game implements Listener
     {
         Material lampOff = new LampData(Material.WOOL, (byte) 0).getMaterial();
         Material lampOn = new LampData(Material.WOOL, (byte) 0).getMaterial();
-
         if (block.getType().equals(lampOff) || block.getType().equals(lampOn)) {
-            if (block.getType().equals(lampOff)) setLampOn(block);
-            else setLampOff(block);
 
+            Block bl0 = block.getLocation().getWorld().getBlockAt(block.getLocation().getBlockX(), block.getLocation().getBlockY(), block.getLocation().getBlockZ());
             Block bl1 = block.getLocation().getWorld().getBlockAt(block.getLocation().getBlockX() - 1, block.getLocation().getBlockY(), block.getLocation().getBlockZ());
             Block bl2 = block.getLocation().getWorld().getBlockAt(block.getLocation().getBlockX() + 1, block.getLocation().getBlockY(), block.getLocation().getBlockZ());
             Block bl3 = block.getLocation().getWorld().getBlockAt(block.getLocation().getBlockX(), block.getLocation().getBlockY() - 1, block.getLocation().getBlockZ());
@@ -106,6 +104,8 @@ public class Game implements Listener
             Block bl6 = block.getLocation().getWorld().getBlockAt(block.getLocation().getBlockX(), block.getLocation().getBlockY(), block.getLocation().getBlockZ() + 1);
 
 
+            if (isLampOff(bl0)) setLampOn(bl0);
+            else if (isLampOn(bl0)) setLampOff(bl0);
             if (isLampOff(bl1)) setLampOn(bl1);
             else if (isLampOn(bl1)) setLampOff(bl1);
             if (isLampOff(bl2)) setLampOn(bl2);
