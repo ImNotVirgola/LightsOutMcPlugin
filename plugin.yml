@@ -1,0 +1,6 @@
+name: "LightsOut"
+main: "it.virgola.lightsout.Main"
+version: "1.0.0"
+commands:
+  lightsout:
+    aliases: ["lo"]
