@@ -1,8 +1,9 @@
 package it.virgola.lightsout;
 
 import org.bukkit.*;
-import org.bukkit.block.Block;
+import org.bukkit.block.*;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ public class Game implements Listener
     public final LampData lampOn, lampOff;
     public HashMap<Location, BlockSave> old_blocks = new HashMap<>();
     public ArrayList<Location> region_blocks_locations = new ArrayList<>();
+
 
     public Game(UUID pUUID, Location pos1, Location pos2, LampData lampOn, LampData lampOff)
     {
@@ -36,10 +38,20 @@ public class Game implements Listener
             {
                 for (int k = Math.min(pos1.getBlockZ(), pos2.getBlockZ()); k <= Math.max(pos1.getBlockZ(), pos2.getBlockZ()); k++)
                 {
-                    Block temp_block = new Location(pos1.getWorld(), i, j, k).getBlock();
-                    region_blocks_locations.add(temp_block.getLocation());
-                    old_blocks.put(temp_block.getLocation(), new BlockSave(temp_block.getType(), temp_block.getData()));
-                    setLampOff(temp_block);
+                    if (true) {
+                        Block temp_block = new Location(pos1.getWorld(), i, j, k).getBlock();
+                        region_blocks_locations.add(temp_block.getLocation());
+                        if (temp_block.getState() instanceof InventoryHolder) {
+                            System.out.println("That's an InventoryHolder: " + temp_block.getType());
+                            old_blocks.put(temp_block.getLocation(), new BlockSave(temp_block.getType(), temp_block.getData(), ((InventoryHolder) temp_block.getState()).getInventory().getContents()));
+                            ((InventoryHolder) temp_block.getState()).getInventory().clear();
+                        } else
+                            old_blocks.put(temp_block.getLocation(), new BlockSave(temp_block.getType(), temp_block.getData(), null));
+                        setLampOff(temp_block);
+                    } else {
+                        Bukkit.getPlayer(pUUID).sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lHai superato il limite massimo di 10x10"));
+                        break;
+                    }
                 }
             }
         }
@@ -53,6 +65,10 @@ public class Game implements Listener
             BlockSave temp_blocksave = old_blocks.get(block_location);
             block_location.getWorld().getBlockAt(block_location).setType(temp_blocksave.material);
             block_location.getWorld().getBlockAt(block_location).setData(temp_blocksave.data);
+            if (block_location.getBlock().getState() instanceof InventoryHolder) {
+                InventoryHolder inventory_holder_block = (InventoryHolder) block_location.getBlock().getState();
+                inventory_holder_block.getInventory().setContents(temp_blocksave.contents);
+            }
         }
     }
 
@@ -84,6 +100,21 @@ public class Game implements Listener
         return pUUID;
     }
 
+    public static boolean isPossible(Location loc1, Location loc2)
+    {
+        for (int i = Math.min(loc1.getBlockX(), loc2.getBlockX()); i <= Math.max(loc1.getBlockX(), loc2.getBlockX()); i++)
+        {
+            for (int j = Math.min(loc1.getBlockY(), loc2.getBlockY()); j <= Math.max(loc1.getBlockY(), loc2.getBlockY()); j++)
+            {
+                for (int k = Math.min(loc1.getBlockZ(), loc2.getBlockZ()); k <= Math.max(loc1.getBlockZ(), loc2.getBlockZ()); k++)
+                {
+                    Block block = new Location(loc1.getWorld(), i, j, k).getBlock();
+                    if(block.isLiquid() || block.getType().equals(Material.AIR)) return false;
+                }
+            }
+        }
+        return true;
+    }
     public boolean isGameBlock(Block block)
     {
         return region_blocks_locations.contains(block.getLocation());

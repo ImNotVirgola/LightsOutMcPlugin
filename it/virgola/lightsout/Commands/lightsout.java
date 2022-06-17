@@ -9,7 +9,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import sun.rmi.transport.proxy.CGIHandler;
 
 public class lightsout implements CommandExecutor
 {
@@ -55,46 +54,34 @@ public class lightsout implements CommandExecutor
             {
                 if (sender instanceof Player) {
                     Player p = (Player) sender;
-
-                    if (GamesHandler.getPlayerGame(p.getUniqueId()) == null)
-                    {
-                        if (GeneralEvents.pos1.containsKey(p.getUniqueId()) && GeneralEvents.pos2.containsKey(p.getUniqueId()))
-                        {
+                    if (GamesHandler.getPlayerGame(p.getUniqueId()) == null) {
+                        if (GeneralEvents.pos1.containsKey(p.getUniqueId()) && GeneralEvents.pos2.containsKey(p.getUniqueId())) {
                             Location p_pos1 = GeneralEvents.pos1.get(p.getUniqueId());
                             Location p_pos2 = GeneralEvents.pos2.get(p.getUniqueId());
-
-                            if (p_pos1.getWorld().equals(p_pos2.getWorld()))
-                            {
-                                if (p_pos1.getBlockX() == p_pos2.getBlockX() || p_pos1.getBlockY() == p_pos2.getBlockY() || p_pos1.getBlockZ() == p_pos2.getBlockZ())
-                                {
+                            boolean isPossible = Game.isPossible(p_pos1, p_pos2);
+                            if (p_pos1.getWorld().equals(p_pos2.getWorld()) && isPossible) {
+                                if (!GamesHandler.isOverridingAnotherGame(p_pos1, p_pos2)) {
+                                    if (p_pos1.getBlockX() == p_pos2.getBlockX() || p_pos1.getBlockY() == p_pos2.getBlockY() || p_pos1.getBlockZ() == p_pos2.getBlockZ()) {
                                         GamesHandler.startGame(p.getUniqueId(), p_pos1, p_pos2, lampOn(), lampOff());
-                                } else
-                                {
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa tabella deve essere spessa un blocco"));
+                                    } else {
+                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa tabella deve essere spessa un blocco"));
+                                    }
+                                } else {
+                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&c&lNon puoi iniziare un Game dentro un altro giá esistente"));
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa selezione che hai effettuato non é valida!!!"));
                             }
-                        }
-                        else
-                        {
+                        } else {
                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa selezione che hai effettuato non é valida!!!"));
                         }
-                    }
-                    else
-                    {
+                    } else {
                         p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lHai giá una partita in corso!!!"));
                     }
-                }
-                else
-                {
+                } else {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lQuesto comando puó essere eseguito solamente da un Player"));
                 }
-            }
-            else if(args[0].equalsIgnoreCase("stop"))
-            {
+            } else if(args[0].equalsIgnoreCase("stop")) {
                 if(args.length > 1) {
                     if (sender instanceof Player) {
                         Player p = Bukkit.getPlayerExact(args[1]);

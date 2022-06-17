@@ -33,5 +33,22 @@ public class GamesHandler
 
         return null;
     }
-
+    public static boolean isOverridingAnotherGame(Location pos1, Location pos2)
+    {
+        for (int i = Math.min(pos1.getBlockX(), pos2.getBlockX()); i <= Math.max(pos1.getBlockX(), pos2.getBlockX()); i++)
+        {
+            for (int j = Math.min(pos1.getBlockY(), pos2.getBlockY()); j <= Math.max(pos1.getBlockY(), pos2.getBlockY()); j++)
+            {
+                for (int k = Math.min(pos1.getBlockZ(), pos2.getBlockZ()); k <= Math.max(pos1.getBlockZ(), pos2.getBlockZ()); k++)
+                {
+                    for(Game game : games)
+                    {
+                        Location temp_loc = new Location(pos1.getWorld(), i, j, k);
+                        if(game.region_blocks_locations.contains(temp_loc)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
