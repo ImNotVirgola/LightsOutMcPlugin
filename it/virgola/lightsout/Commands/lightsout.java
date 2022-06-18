@@ -30,23 +30,23 @@ public class lightsout implements CommandExecutor
         {
             if(args[0].equalsIgnoreCase("help"))
             {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Ecco la lista dei comandi:"));
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout reload"));
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout start"));
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout help"));
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout stop"));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Commands.help-message")));
+                for (String str1 : Main.instance.getConfig().getStringList("Commands.commands-list"))
+                {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str1));
+                }
             }
             else if(args[0].equalsIgnoreCase("reload"))
             {
                 try
                 {
                     Main.instance.reloadConfig();
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Configurazione ricaricata correttamente"));
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.load-configuration-message")));
                 }
                 catch(Exception e)
                 {
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lErrore durante il reload del config"));
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lErrore: " + e.getMessage()));
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Message.load-configuration-error-message")));
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lError: " + e.getMessage()));
                     e.printStackTrace();
                 }
             }
@@ -58,28 +58,33 @@ public class lightsout implements CommandExecutor
                         if (GeneralEvents.pos1.containsKey(p.getUniqueId()) && GeneralEvents.pos2.containsKey(p.getUniqueId())) {
                             Location p_pos1 = GeneralEvents.pos1.get(p.getUniqueId());
                             Location p_pos2 = GeneralEvents.pos2.get(p.getUniqueId());
-                            boolean isPossible = Game.isPossible(p_pos1, p_pos2);
-                            if (p_pos1.getWorld().equals(p_pos2.getWorld()) && isPossible) {
-                                if (!GamesHandler.isOverridingAnotherGame(p_pos1, p_pos2)) {
-                                    if (p_pos1.getBlockX() == p_pos2.getBlockX() || p_pos1.getBlockY() == p_pos2.getBlockY() || p_pos1.getBlockZ() == p_pos2.getBlockZ()) {
-                                        GamesHandler.startGame(p.getUniqueId(), p_pos1, p_pos2, lampOn(), lampOff());
+                            if(Game.maxReached(p_pos1, p_pos2)) {
+                                boolean isPossible = Game.isPossible(p_pos1, p_pos2);
+                                if (p_pos1.getWorld().equals(p_pos2.getWorld()) && isPossible) {
+                                    if (!GamesHandler.isOverridingAnotherGame(p_pos1, p_pos2)) {
+                                        if (p_pos1.getBlockX() == p_pos2.getBlockX() || p_pos1.getBlockY() == p_pos2.getBlockY() || p_pos1.getBlockZ() == p_pos2.getBlockZ()) {
+                                            GamesHandler.startGame(p.getUniqueId(), p_pos1, p_pos2, lampOn(), lampOff());
+                                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.game-start-message")));
+                                        } else {
+                                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.too-much-thick-message")));
+                                        }
                                     } else {
-                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa tabella deve essere spessa un blocco"));
+                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.overriding-another-game-message")));
                                     }
                                 } else {
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&c&lNon puoi iniziare un Game dentro un altro giá esistente"));
+                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.invalid-selection-message")));
                                 }
                             } else {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa selezione che hai effettuato non é valida!!!"));
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.max-exceeded-message")));
                             }
                         } else {
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lLa selezione che hai effettuato non é valida!!!"));
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.unknown-selection-message")));
                         }
                     } else {
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lHai giá una partita in corso!!!"));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.already-playing-message")));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lQuesto comando puó essere eseguito solamente da un Player"));
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.only-player-execution-message")));
                 }
             } else if(args[0].equalsIgnoreCase("stop")) {
                 if(args.length > 1) {
@@ -88,9 +93,10 @@ public class lightsout implements CommandExecutor
                         Game game = GamesHandler.getPlayerGame(p.getUniqueId());
                         if (Bukkit.getPlayerExact(args[1]) != null) {
                             if (game != null) {
+
                                 GamesHandler.stopGame(game);
                             }
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lIl game di " + args[1] + " &a&lé stato stoppato"));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.stop-game-message").replace("%player%", args[1])));
                         }
                     }
                 } else {
@@ -101,25 +107,25 @@ public class lightsout implements CommandExecutor
                             if (game != null) {
                                 GamesHandler.stopGame(game);
                             }
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lPartita terminata con successo"));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.stop-game-message").replace("%player%", p.getDisplayName())));
                         } else {
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lNon puoi stoppare una partita che non esiste!"));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Messages.Errors.not-exist-game")));
                         }
                     }
                 }
             }
             else
             {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&cUnknown Argument"));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',Main.instance.getConfig().getString("Messages.Errors.not-exist-command-message")));
             }
         }
         else
         {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Ecco la lista dei comandi:"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout reload"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout start"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout help"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7/lightsout stop"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Main.instance.getConfig().getString("Commands.help-message")));
+            for (String str1 : Main.instance.getConfig().getStringList("Commands.commands-list"))
+            {
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', str1));
+            }
         }
         return false;
     }

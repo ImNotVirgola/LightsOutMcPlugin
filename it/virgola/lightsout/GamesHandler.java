@@ -10,8 +10,8 @@ public class GamesHandler
 
     public static ArrayList<Game> games = new ArrayList<>();
 
-    public static Game startGame(UUID pUID, Location pos1, Location pos2, LampData lampOn, LampData lampOff)
-    {
+    public static Game startGame(UUID pUID, Location pos1, Location pos2, LampData lampOn, LampData lampOff) {
+
         Game game = new Game(pUID, pos1, pos2, lampOn, lampOff);
         games.add(game);
         game.setTable();
