@@ -42,6 +42,7 @@ public class Main extends JavaPlugin implements Listener
         getConfig().addDefault("Messages.stop-game-message", "&a&lIl game di %player% é stato stoppato");
         getConfig().addDefault("Messages.congratulations-message", "&a&lCongratulazioni!! Hai completato il gioco!");
         getConfig().addDefault("Messages.table-destroyed-message", "&c&lLa tabella é stata distrutta, il game verrá fermato");
+        getConfig().addDefault("Messages.no-has-permission", "&c&lNon hai il permesso per eseguire il comando");
 
         getConfig().addDefault("Commands.help-message", "&7Ecco la lista dei comandi:");
         getConfig().addDefault("Commands.commands-list", cmds);

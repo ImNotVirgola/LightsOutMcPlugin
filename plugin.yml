@@ -1,6 +1,15 @@
 name: "LightsOut"
 main: "it.virgola.lightsout.Main"
 version: "1.0.0"
+permissions:
+  lightsout.start:
+    default: op
+  lightsout.stop:
+    default: op
+  lightsout.reload:
+    default: op
+  lightsout.help:
+    default: true
 commands:
   lightsout:
-    aliases: ["lo"]
+    aliases: ["lo"]\
